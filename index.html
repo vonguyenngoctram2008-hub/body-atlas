@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Body Atlas 3D - Khám Phá Giải Phẫu Cơ Thể Người</title>
+    <!-- Google Fonts & Lucide Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --bg-dark: #0a0f1d;
+            --bg-card: rgba(18, 26, 47, 0.75);
+            --bg-card-hover: rgba(28, 40, 70, 0.9);
+            --primary: #00d2ff;
+            --primary-glow: rgba(0, 210, 255, 0.35);
+            --secondary: #3a7bd5;
+            --accent: #00f2fe;
+            --text-main: #f0f6fc;
+            --text-muted: #8b9bb4;
+            --border: rgba(0, 210, 255, 0.18);
+            --border-active: #00d2ff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            background-image: 
+                radial-gradient(circle at 15% 20%, rgba(0, 210, 255, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 85% 70%, rgba(58, 123, 213, 0.1) 0%, transparent 45%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Header / Navbar */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.2rem 4%;
+            background: rgba(10, 15, 29, 0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, #00d2ff, #3a7bd5);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        .logo-text h1 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(90deg, #fff, var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-text p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .student-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 210, 255, 0.08);
+            border: 1px solid var(--border);
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 0.82rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* Hero Banner */
+        .hero {
+            text-align: center;
+            padding: 2.5rem 1rem 1.5rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0, 242, 254, 0.1);
+            color: var(--accent);
+            padding: 5px 14px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(0, 242, 254, 0.25);
+        }
+
+        .hero h2 {
+            font-size: 2.4rem;
+            font-weight: 800;
+            line-height: 1.25;
+            margin-bottom: 0.8rem;
+            letter-spacing: -0.8px;
+        }
+
+        .hero h2 span {
+            background: linear-gradient(135deg, #00d2ff, #00f2fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            max-width: 650px;
+            margin: 0 auto 1.5rem;
+        }
+
+        /* Main Atlas Workspace */
+        .atlas-container {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 24px;
+            max-width: 1380px;
+            margin: 0 auto;
+            padding: 0 4% 3rem;
+        }
+
+        @media (max-width: 1024px) {
+            .atlas-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 3D Viewport Area */
+        .viewport-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .viewport-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            background: rgba(14, 21, 38, 0.8);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .model-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #00ff88;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #00ff88;
+        }
+
+        .viewport-tools {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tool-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tool-btn:hover {
+            background: rgba(0, 210, 255, 0.15);
+            border-color: var(--primary);
+        }
+
+        /* Iframe container */
+        .iframe-wrapper {
+            position: relative;
+            width: 100%;
+            height: 580px;
+            background: radial-gradient(circle at center, #111a30 0%, #060913 100%);
+        }
+
+        .iframe-wrapper iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        .viewport-footer {
+            padding: 12px 20px;
+            background: rgba(10, 15, 29, 0.8);
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+
+        .interaction-guide {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .guide-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Sidebar: Organ Selection & Info */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .sidebar-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 20px;
+            backdrop-filter: blur(20px);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-header h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        /* Organ / Anatomy Tabs */
+        .anatomy-tabs {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .tab-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-align: left;
+        }
+
+        .tab-item:hover {
+            background: var(--bg-card-hover);
+            border-color: rgba(0, 210, 255, 0.3);
+            transform: translateX(4px);
+        }
+
+        .tab-item.active {
+            background: linear-gradient(90deg, rgba(0, 210, 255, 0.15), rgba(58, 123, 213, 0.2));
+            border-color: var(--border-active);
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.15);
+        }
+
+        .tab-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .tab-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: rgba(0, 210, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+
+        .tab-item.active .tab-icon {
+            background: var(--primary);
+            color: #0a0f1d;
+        }
+
+        .tab-text strong {
+            display: block;
+            font-size: 0.9rem;
+            color: #fff;
+        }
+
+        .tab-text span {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Anatomy Info Display */
+        .info-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 20px;
+        }
+
+        .info-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-desc {
+            font-size: 0.88rem;
+            color: #c0cde3;
+            line-height: 1.6;
+            margin-bottom: 14px;
+        }
+
+        .fact-box {
+            background: rgba(0, 210, 255, 0.06);
+            border-left: 3px solid var(--primary);
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.82rem;
+            color: #e2edff;
+            line-height: 1.5;
+        }
+
+        .fact-box strong {
+            color: var(--primary);
+        }
+
+        /* Detailed Knowledge Section (Flashcards) */
+        .knowledge-section {
+            max-width: 1380px;
+            margin: 2rem auto;
+            padding: 0 4% 3rem;
+        }
+
+        .section-heading {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .section-heading h3 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-heading p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 22px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(0, 210, 255, 0.15);
+        }
+
+        .card-emoji {
+            font-size: 2rem;
+            margin-bottom: 12px;
+            display: inline-block;
+        }
+
+        .feature-card h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .feature-card p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.55;
+        }
+
+        /* Footer */
+        footer {
+            background: #060a14;
+            border-top: 1px solid var(--border);
+            padding: 3rem 4% 2rem;
+            text-align: center;
+        }
+
+        .footer-grid {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .qr-placeholder-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px dashed rgba(0, 210, 255, 0.4);
+            border-radius: 16px;
+            padding: 20px 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .qr-placeholder-box i {
+            color: var(--primary);
+        }
+
+        .copyright {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header / Navbar -->
+    <header>
+        <div class="logo-group">
+            <div class="logo-icon">
+                <i data-lucide="activity"></i>
+            </div>
+            <div class="logo-text">
+                <h1>BODY ATLAS 3D</h1>
+                <p>Nền tảng Giải phẫu Học tập Trực quan</p>
+            </div>
+        </div>
+
+        <div class="student-badge">
+            <i data-lucide="user-check"></i>
+            <span>Người thực hiện: Võ Nguyễn Ngọc Trâm</span>
+        </div>
+    </header>
+
+    <!-- Hero Banner -->
+    <section class="hero">
+        <div class="badge-pill">
+            <i data-lucide="sparkles"></i> Mô hình 3D Siêu Nét • Tương tác 360°
+        </div>
+        <h2>Khám Phá Giải Phẫu <span>Cơ Thể Người 3D</span></h2>
+        <p>Quan sát các hệ cơ quan và cấu trúc sinh học trong không gian 3 chiều. Giúp học sinh dễ dàng phóng to, xoay đa góc độ và tương tác trực quan với độ phân giải cao.</p>
+    </section>
+
+    <!-- Main Atlas Workspace -->
+    <main class="atlas-container">
+        <!-- Vùng hiển thị mô hình 3D -->
+        <div class="viewport-card">
+            <div class="viewport-topbar">
+                <div class="model-status">
+                    <span class="status-dot"></span>
+                    <span id="current-model-name">Hệ Giải Phẫu Toàn Thân (Body Anatomy)</span>
+                </div>
+                <div class="viewport-tools">
+                    <button class="tool-btn" onclick="resetView()">
+                        <i data-lucide="rotate-ccw"></i> Reset Góc Nhìn
+                    </button>
+                    <button class="tool-btn" onclick="toggleFullscreen()">
+                        <i data-lucide="maximize-2"></i> Toàn Màn Hình
+                    </button>
+                </div>
+            </div>
+
+            <!-- Khung 3D Iframe (Sketchfab High-Fidelity 3D WebGL) -->
+            <div class="iframe-wrapper" id="viewer-container">
+                <iframe 
+                    id="model-iframe"
+                    title="Human Body Anatomy 3D" 
+                    frameborder="0" 
+                    allowfullscreen 
+                    mozallowfullscreen="true" 
+                    webkitallowfullscreen="true" 
+                    allow="autoplay; fullscreen; xr-spatial-tracking" 
+                    xr-spatial-tracking 
+                    execution-while-out-of-viewport 
+                    execution-while-not-rendered 
+                    web-share 
+                    src="https://sketchfab.com/models/082ba45e22834b9d88251e06db3e4811/embed?autostart=1&camera=0&preload=1&ui_theme=dark">
+                </iframe>
+            </div>
+
+            <div class="viewport-footer">
+                <div class="interaction-guide">
+                    <div class="guide-item">
+                        <i data-lucide="mouse-pointer"></i> <strong>Chuột trái:</strong> Xoay 360°
+                    </div>
+                    <div class="guide-item">
+                        <i data-lucide="move"></i> <strong>Cuộn chuột:</strong> Phóng to / Thu nhỏ
+                    </div>
+                    <div class="guide-item">
+                        <i data-lucide="hand"></i> <strong>Chuột phải:</strong> Di chuyển vị trí
+                    </div>
+                </div>
+                <span style="color: var(--accent); font-weight: 600;">Full HD 60 FPS</span>
+            </div>
+        </div>
+
+        <!-- Sidebar: Danh mục lựa chọn hệ cơ quan & Thông tin chi tiết -->
+        <aside class="sidebar">
+            <div class="sidebar-card">
+                <div class="card-header">
+                    <i data-lucide="layers" style="color: var(--primary);"></i>
+                    <h3>Danh Mục Hệ Cơ Quan</h3>
+                </div>
+                <div class="anatomy-tabs">
+                    <!-- Tab 1: Toàn thân -->
+                    <div class="tab-item active" onclick="switchModel('body', this)">
+                        <div class="tab-info">
+                            <div class="tab-icon"><i data-lucide="user"></i></div>
+                            <div class="tab-text">
+                                <strong>Cơ Thể Toàn Thân</strong>
+                                <span>Giải phẫu tổng thể các hệ</span>
+                            </div>
+                        </div>
+                        <i data-lucide="chevron-right" style="color: var(--text-muted); width: 18px;"></i>
+                    </div>
+
+                    <!-- Tab 2: Tim mạch -->
+                    <div class="tab-item" onclick="switchModel('heart', this)">
+                        <div class="tab-info">
+                            <div class="tab-icon"><i data-lucide="heart"></i></div>
+                            <div class="tab-text">
+                                <strong>Trái Tim & Tuần Hoàn</strong>
+                                <span>Cấu tạo 4 ngăn và mạch máu</span>
+                            </div>
+                        </div>
+                        <i data-lucide="chevron-right" style="color: var(--text-muted); width: 18px;"></i>
+                    </div>
+
+                    <!-- Tab 3: Não bộ -->
+                    <div class="tab-item" onclick="switchModel('brain', this)">
+                        <div class="tab-info">
+                            <div class="tab-icon"><i data-lucide="brain"></i></div>
+                            <div class="tab-text">
+                                <strong>Bộ Não & Thần Kinh</strong>
+                                <span>Đại não, tiểu não, bán cầu</span>
+                            </div>
+                        </div>
+                        <i data-lucide="chevron-right" style="color: var(--text-muted); width: 18px;"></i>
+                    </div>
+
+                    <!-- Tab 4: Hệ xương -->
+                    <div class="tab-item" onclick="switchModel('skeleton', this)">
+                        <div class="tab-info">
+                            <div class="tab-icon"><i data-lucide="shield"></i></div>
+                            <div class="tab-text">
+                                <strong>Hệ Xương Khớp</strong>
+                                <span>Khung xương nâng đỡ cơ thể</span>
+                            </div>
+                        </div>
+                        <i data-lucide="chevron-right" style="color: var(--text-muted); width: 18px;"></i>
+                    </div>
+
+                    <!-- Tab 5: Tế bào học -->
+                    <div class="tab-item" onclick="switchModel('cell', this)">
+                        <div class="tab-info">
+                            <div class="tab-icon"><i data-lucide="circle-dot"></i></div>
+                            <div class="tab-text">
+                                <strong>Cấu Trúc Tế Bào Người</strong>
+                                <span>Nhân, ty thể & bào quan</span>
+                            </div>
+                        </div>
+                        <i data-lucide="chevron-right" style="color: var(--text-muted); width: 18px;"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thẻ thông tin chi tiết -->
+            <div class="info-card">
+                <div class="info-title" id="info-title">
+                    <i data-lucide="info"></i>
+                    <span>Cơ Thể Toàn Thân</span>
+                </div>
+                <p class="info-desc" id="info-desc">
+                    Cơ thể người là một hệ thống sinh học hoàn chỉnh gồm hơn 30 nghìn tỷ tế bào, kết hợp nhịp nhàng giữa các hệ cơ quan như tuần hoàn, thần kinh, hô hấp, tiêu hóa và bài tiết để duy trì sự sống.
+                </p>
+                <div class="fact-box" id="info-fact">
+                    <strong>💡 Kiến thức trọng tâm:</strong> Các hệ cơ quan phối hợp chặt chẽ thông qua cơ chế thần kinh và thể dịch để duy trì cân bằng nội môi.
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Thư viện kiến thức chi tiết (Cards) -->
+    <section class="knowledge-section">
+        <div class="section-heading">
+            <h3>Tóm Tắt Chức Năng Các Cơ Quan</h3>
+            <p>Học sinh có thể đối chiếu mô hình 3D với lý thuyết sinh học dưới đây</p>
+        </div>
+        <div class="grid-cards">
+            <div class="feature-card">
+                <span class="card-emoji">🫀</span>
+                <h4>Hệ Tuần Hoàn</h4>
+                <p>Trái tim co bóp bơm máu qua hệ thống động mạch và tĩnh mạch, vận chuyển oxy và dưỡng chất đến từng tế bào trên khắp cơ thể.</p>
+            </div>
+            <div class="feature-card">
+                <span class="card-emoji">🧠</span>
+                <h4>Hệ Thần Kinh</h4>
+                <p>Não bộ và tủy sống chỉ huy mọi hoạt động nhận thức, phản xạ và điều hòa các chức năng tự động của các cơ quan nội tạng.</p>
+            </div>
+            <div class="feature-card">
+                <span class="card-emoji">🫁</span>
+                <h4>Hệ Hô Hấp</h4>
+                <p>Phổi trao đổi khí O2 và CO2 qua các phế nang, cung cấp oxy cho máu duy trì quá trình hô hấp tế bào tạo năng lượng ATP.</p>
+            </div>
+            <div class="feature-card">
+                <span class="card-emoji">🦴</span>
+                <h4>Hệ Vận Động</h4>
+                <p>Gồm 206 xương kết hợp với hệ cơ vân tạo khung nâng đỡ, bảo vệ các cơ quan trọng yếu và giúp cơ thể di chuyển linh hoạt.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer & Chỗ đặt Mã QR cho Mốc 2 -->
+    <footer>
+        <div class="footer-grid">
+            <div class="qr-placeholder-box">
+                <i data-lucide="qr-code" style="width: 48px; height: 48px;"></i>
+                <div style="font-weight: 700; color: #fff;">VÙNG LIÊN KẾT MÃ QR (MỐC 2 - 20:00)</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">
+                    Mã QR sẽ được tạo từ đường link chính thức của trang web này để in lên Poster học tập.
+                </div>
+            </div>
+
+            <p class="copyright">
+                Dự án Web Học Tập 3D Body Atlas • Tác giả: <strong>Võ Nguyễn Ngọc Trâm</strong> • Cập nhật: 10/2026
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Khởi tạo icons Lucide
+        lucide.createIcons();
+
+        // Dữ liệu mô hình 3D và thông tin chi tiết
+        const modelsData = {
+            body: {
+                name: "Hệ Giải Phẫu Toàn Thân (Body Anatomy)",
+                url: "https://sketchfab.com/models/082ba45e22834b9d88251e06db3e4811/embed?autostart=1&camera=0&preload=1&ui_theme=dark",
+                title: "Giải Phẫu Cơ Thể Người Toàn Diện",
+                desc: "Cơ thể người là một hệ thống sinh học hoàn chỉnh gồm hơn 30 nghìn tỷ tế bào, kết hợp nhịp nhàng giữa các hệ cơ quan như tuần hoàn, thần kinh, hô hấp, tiêu hóa và bài tiết để duy trì sự sống.",
+                fact: "💡 Kiến thức trọng tâm: Các hệ cơ quan phối hợp chặt chẽ thông qua cơ chế thần kinh và thể dịch để duy trì cân bằng nội môi."
+            },
+            heart: {
+                name: "Mô Hình Trái Tim 3D (Human Heart)",
+                url: "https://sketchfab.com/models/9c4be465a36349c2a849767fb797c272/embed?autostart=1&camera=0&preload=1&ui_theme=dark",
+                title: "Trái Tim & Hệ Mạch Máu",
+                desc: "Tim là cơ quan rỗng gồm 4 ngăn: tâm nhĩ trái, tâm nhĩ phải, tâm thất trái và tâm thất phải. Hoạt động như một chiếc máy bơm tuần hoàn kép đưa máu đi khắp cơ thể.",
+                fact: "💡 Điểm thú vị: Mỗi ngày, trái tim người đập khoảng 100.000 lần và bơm khoảng 7.500 lít máu qua mạng lưới mạch máu dài gần 100.000 km."
+            },
+            brain: {
+                name: "Mô Hình Bộ Não Người 3D (Human Brain)",
+                url: "https://sketchfab.com/models/d129ea5b809d43d191147775fe674bfa/embed?autostart=1&camera=0&preload=1&ui_theme=dark",
+                title: "Bộ Não & Hệ Thần Kinh Trung Ương",
+                desc: "Bộ não gồm đại não, tiểu não và thân não. Chứa khoảng 86 tỷ tế bào thần kinh (neuron) kết nối qua hàng nghìn tỷ synapse để xử lý thông tin và lưu giữ ký ức.",
+                fact: "💡 Điểm thú vị: Não bộ chỉ chiếm khoảng 2% khối lượng cơ thể nhưng tiêu thụ tới 20% tổng lượng oxy và năng lượng calo hằng ngày."
+            },
+            skeleton: {
+                name: "Khung Xương Người 3D (Human Skeleton)",
+                url: "https://sketchfab.com/models/bc2dc57be9174092b76fb0837561be78/embed?autostart=1&camera=0&preload=1&ui_theme=dark",
+                title: "Bộ Xương Người (206 Xương)",
+                desc: "Khung xương nâng đỡ các phần mềm, định hình vóc dáng cơ thể và bảo vệ các cơ quan nhạy cảm bên trong như não (hộp sọ), tim phổi (lồng ngực).",
+                fact: "💡 Điểm thú vị: Xương đùi (femur) là xương dài và chịu lực khỏe nhất trong cơ thể người, cứng hơn cả khối bê tông cùng trọng lượng."
+            },
+            cell: {
+                name: "Cấu Trúc Tế Bào Động Vật 3D (Animal Cell)",
+                url: "https://sketchfab.com/models/a1e50fbf835848d799d5cae5f98cf4a9/embed?autostart=1&camera=0&preload=1&ui_theme=dark",
+                title: "Cấu Trúc Tế Bào Động Vật",
+                desc: "Đơn vị cấu tạo cơ bản của cơ thể người. Gồm màng sinh chất, tế bào chất và nhân tế bào chứa DNA; cùng các bào quan: ty thể (nhà máy năng lượng), ribosome, lưới nội chất...",
+                fact: "💡 Điểm thú vị: Ty thể là bào quan duy nhất có hệ gen ADN riêng biệt và chịu trách nhiệm sản xuất phân tử năng lượng ATP cho tế bào."
+            }
+        };
+
+        // Chuyển đổi mô hình khi bấm vào tab
+        function switchModel(key, element) {
+            // Đổi class active ở tab
+            document.querySelectorAll('.tab-item').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+
+            const data = modelsData[key];
+            if (!data) return;
+
+            // Đổi tên mô hình
+            document.getElementById('current-model-name').textContent = data.name;
+
+            // Đổi link iframe 3D
+            const iframe = document.getElementById('model-iframe');
+            iframe.src = data.url;
+
+            // Cập nhật thông tin chi tiết
+            document.getElementById('info-title').innerHTML = `<i data-lucide="info"></i> <span>${data.title}</span>`;
+            document.getElementById('info-desc').textContent = data.desc;
+            document.getElementById('info-fact').innerHTML = data.fact;
+
+            lucide.createIcons();
+        }
+
+        // Đặt lại góc nhìn
+        function resetView() {
+            const iframe = document.getElementById('model-iframe');
+            const currentSrc = iframe.src;
+            iframe.src = currentSrc;
+        }
+
+        // Chế độ toàn màn hình
+        function toggleFullscreen() {
+            const container = document.getElementById('viewer-container');
+            if (!document.fullscreenElement) {
+                container.requestFullscreen().catch(err => {
+                    alert(`Không thể mở toàn màn hình: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+    </script>
+</body>
+</html>
